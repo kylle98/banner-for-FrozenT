@@ -1,8 +1,6 @@
 <?php
 date_default_timezone_set('CET');
 
-$jsonDirectoryPath = __DIR__."/json/";
-
 function isNotDotOrDotDot($filepath) 
 {
     return $filepath != "." && $filepath != "..";
@@ -10,7 +8,7 @@ function isNotDotOrDotDot($filepath)
 
 function getJsonPath($filename) 
 {
-    global $jsonDirectoryPath;
+    $jsonDirectoryPath = __DIR__."/json/";
     return $jsonDirectoryPath.$filename.".json";
 }
 
@@ -36,8 +34,7 @@ function choosePhotoForBanner()
             {
                 break;
             }
-            $imageArray[$indexOfImage] = $filepath;
-            $indexOfImage++;
+            $imageArray[$indexOfImage++] = $filepath;
         }
     }
     
@@ -55,10 +52,9 @@ function jsonDecode($jsonFile)
     return json_decode($jsonData);
 }
 
-function getFontPath()
+function getFontPath($fontName)
 {
-    $nameFontFile = "SourceSansPro-Regular.otf";
-    $fontPath = __DIR__.'/'.$nameFontFile;
+    $fontPath = __DIR__.'/'.$fontName;
 
     return $fontPath;
 }
@@ -91,13 +87,26 @@ function createImage($chosenImg)
     return $img;
 }
 
-function displayAndSaveImg($img)
+function displayImage($img)
 {
     $filename = "finished.png";
 
     header('Content-Type: image/png');
     header("Content-Disposition: inline; filename=".$filename);
     imagepng($img);
+
+}
+
+function displaySavedImage()
+{
+    header('Content-Type: image/png');
+    readfile( getBannerFilename() );
+}
+
+function saveImage($img)
+{
+    $filename = "finished.png";
+
     imagepng($img, $filename);
     imagedestroy($img);
 }
@@ -116,94 +125,109 @@ function color($img)
     return $colors;
 }
 
-function doTimezoneOnImg($img)
+function displayTextLine($fontSize, $fontName, $label, $textColor, $yShadow, $yText)
 {
     $colors = color($img);
     $fontSize = 25;
-    $borderOfImg = imagettfbbox($fontSize,0,getFontPath(),"CEST timezone");
+    $borderOfImg = imagettfbbox($fontSize,0,getFontPath("SourceSansPro-Regular.otf"),"CEST timezone");
     $leftCorner = $borderOfImg[0];
     $rightCorner = $borderOfImg[4];
     $heightWithShadow = 84;
     $heightWithText = 80;
     $centerPosition = ($leftCorner + $rightCorner)/2;
 
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath(), "CEST timezone"); // Shadow
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color1'], getFontPath(), "CEST timezone"); // Text
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath("SourceSansPro-Regular.otf"), "CEST timezone"); // Shadow
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color1'], getFontPath("SourceSansPro-Regular.otf"), "CEST timezone"); // Text
+}
+
+function doTimezoneOnImg($img)
+{
+    $colors = color($img);
+    $fontSize = 25;
+    $borderOfImg = imagettfbbox($fontSize,0,getFontPath("SourceSansPro-Regular.otf"),"CEST timezone");
+    $leftCorner = $borderOfImg[0];
+    $rightCorner = $borderOfImg[4];
+    $heightWithShadow = 84;
+    $heightWithText = 80;
+    $centerPosition = ($leftCorner + $rightCorner)/2;
+
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath("SourceSansPro-Regular.otf"), "CEST timezone"); // Shadow
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color1'], getFontPath("SourceSansPro-Regular.otf"), "CEST timezone"); // Text
 }
 
 function doTimeOnImg($img)
 {
     $colors = color($img);
     $fontSize = 100;
-    $borderOfImg = imagettfbbox($fontSize,0,getFontPath(),date('H:i'));
+    $borderOfImg = imagettfbbox($fontSize,0,getFontPath("SourceSansPro-Regular.otf"),date('H:i'));
     $leftCorner = $borderOfImg[0];
     $rightCorner = $borderOfImg[4];
     $heightWithShadow = 199;
     $heightWithText = 195;
     $centerPosition = ($leftCorner + $rightCorner)/2;
 
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath(), date('H:i')); // Shadow
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color2'], getFontPath(), date('H:i')); // Text
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath("SourceSansPro-Regular.otf"), date('H:i')); // Shadow
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color2'], getFontPath("SourceSansPro-Regular.otf"), date('H:i')); // Text
 }
 
 function doNameOfDayOnImg($img)
 {
     $colors = color($img);
     $fontSize = 35;
-    $borderOfImg = imagettfbbox($fontSize,0,getFontPath(),date('l'));
+    $borderOfImg = imagettfbbox($fontSize,0,getFontPath("SourceSansPro-Regular.otf"),date('l'));
     $leftCorner = $borderOfImg[0];
     $rightCorner = $borderOfImg[4];
     $heightWithShadow = 253;
     $heightWithText = 250;
     $centerPosition = ($leftCorner + $rightCorner)/2;
 
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath(), date('l')); // Shadow
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['semi_purple_xd'], getFontPath(), date('l')); // Text
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath("SourceSansPro-Regular.otf"), date('l')); // Shadow
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['semi_purple_xd'], getFontPath("SourceSansPro-Regular.otf"), date('l')); // Text
 }
 
 function doCityNameOnImg($img, $imageCity)
 {
     $colors = color($img);
     $fontSize = 20;
-    $borderOfImg = imagettfbbox($fontSize,0,getFontPath(),$imageCity);
+    $borderOfImg = imagettfbbox($fontSize,0,getFontPath("SourceSansPro-Regular.otf"),$imageCity);
     $leftCorner = $borderOfImg[0];
     $rightCorner = $borderOfImg[4];
     $heightWithShadow = 334;
     $heightWithText = 331;
     $centerPosition = ($leftCorner + $rightCorner)/2;
 
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath(), $imageCity); // Text
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color2'], getFontPath(), $imageCity); // Shadow
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath("SourceSansPro-Regular.otf"), $imageCity); // Text
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color2'], getFontPath("SourceSansPro-Regular.otf"), $imageCity); // Shadow
 }
 
 function doCountryNameOnImg($img, $imageCountry)
 {
     $colors = color($img);
     $fontSize = 15;
-    $borderOfImg = imagettfbbox($fontSize,0,getFontPath(),$imageCountry);
+    $borderOfImg = imagettfbbox($fontSize,0,getFontPath("SourceSansPro-Regular.otf"),$imageCountry);
     $leftCorner = $borderOfImg[0];
     $rightCorner = $borderOfImg[4];
     $heightWithShadow = 362;
     $heightWithText = 360;
     $centerPosition = ($leftCorner + $rightCorner)/2;
 
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath(), $imageCountry); // Text
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color2'], getFontPath(), $imageCountry); // Shadow
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath("SourceSansPro-Regular.otf"), $imageCountry); // Text
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color2'], getFontPath("SourceSansPro-Regular.otf"), $imageCountry); // Shadow
 }
 
 function doDateOnImg($img)
 {
     $colors = color($img);
     $fontSize = 35;
-    $borderOfImg = imagettfbbox($fontSize,0,getFontPath(),date('j F'));
+    $borderOfImg = imagettfbbox($fontSize,0,getFontPath("SourceSansPro-Regular.otf"),date('j F'));
     $leftCorner = $borderOfImg[0];
     $rightCorner = $borderOfImg[4];
     $heightWithShadow = 464;
     $heightWithText = 460;
     $centerPosition = ($leftCorner + $rightCorner)/2;
 
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath(), date('j F')); // Shadow
-    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color2'], getFontPath(), date('j F')); // Text
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithShadow, $colors['blackshadow'], getFontPath("SourceSansPro-Regular.otf"), date('j F')); // Shadow
+    imagettftext($img, $fontSize, 0, 820-$centerPosition, $heightWithText, $colors['color2'], getFontPath("SourceSansPro-Regular.otf"), date('j F')); // Text
 }
 
 function generateBanner() 
@@ -226,21 +250,26 @@ function generateBanner()
 
     doDateOnImg($img);
 
-    displayAndSaveImg($img);
+    displayImage($img);
+
+    saveImage($img);
 }
 
 function main() {
     $neededTimeToGenerateBanner = 30;
-    if (file_exists( getBannerFilename() ) ) 
+    if ( file_exists(getBannerFilename()) ) 
     {
-        if ( ( time() - getModificationTimeOfFile( getBannerFilename() ) ) > $neededTimeToGenerateBanner ) 
+        $bannerFile = getBannerFilename();
+        $timeOfModificationBanner = getModificationTimeOfFile($bannerFile);
+        $timeDifference = time() - $timeOfModificationBanner;
+
+        if ($timeDifference > $neededTimeToGenerateBanner) 
         {
             generateBanner();
         }
         else 
         {
-            header('Content-Type: image/png');
-            readfile( getBannerFilename() );
+            displaySavedImage();
         }
     }
     else 
