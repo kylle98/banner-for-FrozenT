@@ -14,7 +14,7 @@ function getJsonPath($filename)
 
 function checkIsImage($filepath)
 {
-    return pathinfo($filepath)['extension'] == "png" || pathinfo($filepath)['extension'] || "jpeg" || pathinfo($filepath)['extension'] == "jpg";
+    return pathinfo($filepath)['extension'] == "png" || pathinfo($filepath)['extension'] == "jpeg" || pathinfo($filepath)['extension'] == "jpg";
 }
 
 function convertJPGtoPNG($filepath)
@@ -54,13 +54,11 @@ function choosePhotoForBanner()
                 removeJPG($filepath);
             }
             $imageWithoutExtension = getNameOfImage($filepath);
-            $jsonSelect = getJsonPath($imageWithoutExtension);
             
-            if (!file_exists($jsonSelect)) 
+            if (file_exists(getJsonPath($imageWithoutExtension))) 
             {
-                break;
-            }
-            $imageArray[$indexOfImage++] = $filepath;
+                $imageArray[$indexOfImage++] = $filepath;
+            }   
         }
     }
     
@@ -157,11 +155,12 @@ function displayTextLine($image, $fontSize, $fontName, $label, $textColor, $yTex
     $borderOfImg = imagettfbbox($fontSize,0,getFontPath($fontName),$label);
     $leftCorner = $borderOfImg[0];
     $rightCorner = $borderOfImg[4];
+    $squareCenterPosition = 820;
     $centerPosition = ($leftCorner + $rightCorner)/2;
     $yShadow = $yText + $shadowOffset;
 
-    imagettftext($image, $fontSize, 0, 820-$centerPosition, $yShadow, $colors['blackshadow'], getFontPath($fontName), $label); // Shadow
-    imagettftext($image, $fontSize, 0, 820-$centerPosition, $yText, $colors[$textColor], getFontPath($fontName), $label); // Text
+    imagettftext($image, $fontSize, 0, $squareCenterPosition-$centerPosition, $yShadow, $colors['blackshadow'], getFontPath($fontName), $label); // Shadow
+    imagettftext($image, $fontSize, 0, $squareCenterPosition-$centerPosition, $yText, $colors[$textColor], getFontPath($fontName), $label); // Text
 }
 
 function generateBanner() 
