@@ -12,6 +12,25 @@ function getJsonPath($filename)
     return $jsonDirectoryPath.$filename.".json";
 }
 
+function checkIsImage($filepath)
+{
+    return pathinfo($filepath)['extension'] == "png" || pathinfo($filepath)['extension'] || "jpeg" || pathinfo($filepath)['extension'] == "jpg";
+}
+
+function convertJPGtoPNG($filepath)
+{
+    $imageExtension = pathinfo($filepath)['extension'];
+    $imageBasename = basename($filepath, $imageExtension);
+    $pathToImagesDirectory = __DIR__."/imgs/";
+    imagepng(imagecreatefromstring(file_get_contents($pathToImagesDirectory.$filepath)), $pathToImagesDirectory.$imageBasename."png");
+}
+
+function removeJPG($filepath)
+{
+    $pathToImagesDirectory = __DIR__."/imgs/";
+    unlink($pathToImagesDirectory.$filepath);
+}
+
 function getNameOfImage($image) 
 {
     return basename($image, ".png");
@@ -25,8 +44,15 @@ function choosePhotoForBanner()
 
     while ( $filepath = readdir($imageDirectoryPath) ) 
     {
-        if ( isNotDotOrDotDot($filepath) )
-        { 
+        if ( isNotDotOrDotDot($filepath) && checkIsImage($filepath) )
+        {   
+            $imageExtension = pathinfo($filepath)['extension'];
+            
+            if ($imageExtension == "jpg" || $imageExtension == "jpeg")
+            {
+                convertJPGtoPNG($filepath);
+                removeJPG($filepath);
+            }
             $imageWithoutExtension = getNameOfImage($filepath);
             $jsonSelect = getJsonPath($imageWithoutExtension);
             
